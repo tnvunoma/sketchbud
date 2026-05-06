@@ -1,4 +1,6 @@
 import { useEffect, useRef } from "react";
+import Canvas from "../components/Canvas";
+
 // import fabric from "fabric";
 // import { socket } from "../networking/socket";
 
@@ -32,15 +34,14 @@ export default function LobbyPage() {
 
   return (
     <div>
-      <h1>Lobby Page</h1>
-
-      <button
+      <Canvas />
+      {/* <button
         onClick={() => {
           socketRef.current?.send("hello");
         }}
       >
         Send Test
-      </button>
+      </button> */}
     </div>
   );
 }
