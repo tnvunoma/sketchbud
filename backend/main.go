@@ -3,10 +3,13 @@ package main
 import (
 	"log"
 	"net/http"
-
 	"github.com/gorilla/websocket"
+	"sketchbud-backend/realtime"
 )
 
+var hub *realtime.Hub
+
+//used to upgrade HTTP connections to WebSocket connections
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		return true // allow all connections
@@ -16,6 +19,7 @@ var upgrader = websocket.Upgrader{
 func handleWS(w http.ResponseWriter, r *http.Request) {
 	log.Println("HTTP request received")
 
+	//upgrade 
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println("Upgrade error:", err)
@@ -24,29 +28,50 @@ func handleWS(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("Client upgraded successfully")
 
-	defer conn.Close()
+	roomID := r.URL.Query().Get("room")
+	userID := r.URL.Query().Get("user")
 
-	clients[conn] = true
-	log.Println("Client added. Total clients:", len(clients))
-
-	for {
-		_, msg, err := conn.ReadMessage()
-		if err != nil {
-			log.Println("Read error:", err)
-			break
-		}
-
-		log.Println("Received:", string(msg))
-
-		for client := range clients {
-			client.WriteMessage(websocket.TextMessage, msg)
-		}
+	client := &realtime.Client{
+		ID: userID,
+		Conn: conn,
+		Send: make(chan []byte),
+		RoomName: roomID,
+		Hub: hub,
 	}
+
+	log.Println("New client connected to room:", roomID)
+
+	hub.Register <- client
+
+	go client.ReadPump()
+	go client.WritePump()
 }
 
-var clients = make(map[*websocket.Conn]bool)
-
 func main() {
+
+	rooms := make(map[string]*realtime.Room) 
+	rooms["room_1"] = &realtime.Room{
+		Name: "room_1",
+		Clients: make(map[*realtime.Client]struct{}),
+	}
+	rooms["room_2"] = &realtime.Room{
+		Name: "room_2",
+		Clients: make(map[*realtime.Client]struct{}), 
+	}
+	rooms["room_3"] = &realtime.Room{
+		Name: "room_3",
+		Clients: make(map[*realtime.Client]struct{}), 
+	}
+
+	hub = &realtime.Hub{
+		Rooms: rooms,  
+		Register: make(chan *realtime.Client),
+		Unregister: make(chan *realtime.Client),
+		Broadcast: make(chan realtime.Message),
+	}
+
+	go hub.Run()
+
 	http.HandleFunc("/ws", handleWS)
 
 	log.Println("Server running on :8080")

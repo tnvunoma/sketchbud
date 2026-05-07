@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import Canvas from "../components/Canvas";
 
 // import fabric from "fabric";
@@ -6,9 +7,15 @@ import Canvas from "../components/Canvas";
 
 export default function LobbyPage() {
   const socketRef = useRef<WebSocket | null>(null);
+  const navigate = useNavigate();
+  const { roomId } = useParams();
+
+  const userId = localStorage.getItem("userId") || crypto.randomUUID();
+  localStorage.setItem("userId", userId);
 
   useEffect(() => {
-    const socket = new WebSocket("ws://localhost:8080/ws");
+    console.log("ROOM ID:", roomId);
+    const socket = new WebSocket(`ws://localhost:8080/ws?room=${roomId}&user=${userId}`);
     socketRef.current = socket;
 
     socket.onopen = () => {
@@ -34,6 +41,15 @@ export default function LobbyPage() {
 
   return (
     <div>
+      <button
+        onClick={() => {
+          socketRef.current?.close(); 
+          navigate("/");
+        }}
+      >
+        ⬅ Return to Lobby List
+      </button>
+
       <Canvas />
       {/* <button
         onClick={() => {
