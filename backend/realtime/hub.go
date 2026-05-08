@@ -11,22 +11,43 @@ type Hub struct {
     Broadcast chan Message
 }
 
+type Message struct {
+    Msg []byte
+    Room string
+}
+
 type Room struct {
     Name string
     Clients map[*Client]struct{}
+    OpLog [][]byte
 }
 
 func (h *Hub) Run() {
     for {
         select {
-        case client := <-h.Register:
-            room := h.Rooms[client.RoomName]
-            room.Clients[client] = struct{}{}
-        case client := <-h.Unregister:
-            room := h.Rooms[client.RoomName]
-            delete(room.Clients, client)
+            case client := <-h.Register:
+                room := h.Rooms[client.RoomName]
+                room.Clients[client] = struct{}{}
+
+                for _, op := range room.OpLog {
+                    client.Send <- op
+                }
+            case client := <-h.Unregister:
+                room := h.Rooms[client.RoomName]
+                delete(room.Clients, client)
+            case msg := <-h.Broadcast:
+                room := h.Rooms[msg.Room]
+                for client := range room.Clients {
+                    select {
+                        case client.Send <- msg.Msg:
+                    }
+                }
+
+                room.OpLog = append(room.OpLog, msg.Msg) //store 
         }
        
+
+        //logging rooms
         for roomName, room := range h.Rooms {
             log.Printf("Room: %s", roomName)
 
