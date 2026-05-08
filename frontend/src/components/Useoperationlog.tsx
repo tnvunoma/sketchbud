@@ -1,4 +1,4 @@
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useState } from "react";
 
 // ─── Operation Types ──────────────────────────────────────────────────────────
 
@@ -8,6 +8,7 @@ export type StrokeOp = {
   type: "stroke";
   id: string;
   userId: string;
+  roomId: string;
   points: Point[];
   color: string;
   size: number;
@@ -19,6 +20,7 @@ export type FillOp = {
   type: "fill";
   id: string;
   userId: string;
+  roomId: string;
   x: number;
   y: number;
   color: string;
@@ -28,6 +30,7 @@ export type ClearOp = {
   type: "clear";
   id: string;
   userId: string;
+  roomId: string;
 };
 
 export type Operation = StrokeOp | FillOp | ClearOp;
@@ -61,12 +64,16 @@ export function useOperationLog(options: {
   // Per-user redo stack: ops that were undone and can be re-applied
   const redoStack = useRef<Operation[]>([]);
 
+  const [version, setVersion] = useState(0); 
+  const bump = () => setVersion(v => v + 1);
+
   const commit = useCallback(
     (op: Operation) => {
       log.current.push(op);
       undoStack.current.push(op.id);
       redoStack.current = []; // new op clears redo
       onCommit?.(op);
+      bump();
     },
     [onCommit]
   );
@@ -74,11 +81,13 @@ export function useOperationLog(options: {
   // Called when another user's op arrives from the server
   const addOperation = useCallback((op: Operation) => {
     log.current.push(op);
+    bump();
   }, []);
 
   // Called when the server confirms an undo (removes op from canonical log)
   const removeOperation = useCallback((id: string) => {
     log.current = log.current.filter((op) => op.id !== id);
+    bump();
   }, []);
 
   const canUndo = () => undoStack.current.length > 0;
@@ -92,6 +101,7 @@ export function useOperationLog(options: {
     log.current = log.current.filter((o) => o.id !== id);
     redoStack.current.push(op);
     onUndo?.(id);
+    bump();
     return id;
   }, [onUndo]);
 
@@ -101,10 +111,11 @@ export function useOperationLog(options: {
     log.current.push(op);
     undoStack.current.push(op.id);
     onRedo?.(op);
+    bump();
     return op;
   }, [onRedo]);
 
   const getLog = () => log.current;
 
-  return { commit, addOperation, removeOperation, undo, redo, canUndo, canRedo, getLog };
+  return { commit, addOperation, removeOperation, undo, redo, canUndo, canRedo, getLog, version};
 }

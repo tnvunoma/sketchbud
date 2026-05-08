@@ -1,6 +1,8 @@
 import { useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Canvas from "../components/Canvas";
+import { useOperationLog } from "../components/Useoperationlog"
+import type { Operation } from "../components/Useoperationlog";
 
 // import fabric from "fabric";
 // import { socket } from "../networking/socket";
@@ -13,12 +15,19 @@ export default function LobbyPage() {
   const userId = localStorage.getItem("userId") || crypto.randomUUID();
   localStorage.setItem("userId", userId);
 
+  const opLog = useOperationLog({
+    userId,
+    onCommit: (op) => socketRef.current?.send(JSON.stringify(op)),
+    onUndo:   (id) => socketRef.current?.send(JSON.stringify({ type: "undo", opId: id })),
+    onRedo:   (op) => socketRef.current?.send(JSON.stringify({ type: "redo", op })),
+  });
+  
   useEffect(() => {
     console.log("ROOM ID:", roomId);
     const socket = new WebSocket(`ws://localhost:8080/ws?room=${roomId}&user=${userId}`);
     socketRef.current = socket;
 
-    socket.onopen = () => {
+    socket.onopen = (event) => {
       console.log("CONNECTED");
     };
 
@@ -32,12 +41,14 @@ export default function LobbyPage() {
 
     socket.onmessage = (event) => {
       console.log("Received:", event.data);
+      const op: Operation = JSON.parse(event.data);
+      opLog.addOperation(op)
     };
 
     return () => {
       socket.close();
     };
-  }, []);
+  }, [roomId]);
 
   return (
     <div>
@@ -50,14 +61,7 @@ export default function LobbyPage() {
         ⬅ Return to Lobby List
       </button>
 
-      <Canvas />
-      {/* <button
-        onClick={() => {
-          socketRef.current?.send("hello");
-        }}
-      >
-        Send Test
-      </button> */}
+      <Canvas userId={userId} roomId={roomId} opLog={opLog}/>
     </div>
   );
 }

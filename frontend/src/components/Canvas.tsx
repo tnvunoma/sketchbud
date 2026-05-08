@@ -15,8 +15,6 @@ type Tool = "draw" | "erase" | "fill";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const USER_ID = "local-user"; // Replace with real user id from your auth system
-
 const COLORS = [
   "#1a1a1a",
   "#ffffff",
@@ -78,9 +76,18 @@ function buildCursor(size: number, tool: Tool): string {
   return `url("data:image/svg+xml,${svg}") ${c} ${c}, crosshair`;
 }
 
+type Props = {
+  userId: string;
+  roomId: string | undefined;
+  opLog: ReturnType<typeof useOperationLog>;
+};
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function DrawingCanvas() {
+export default function DrawingCanvas({ userId, roomId, opLog}:Props) {
+
+  if (!roomId) return null;
+
   // Two canvases: committed layer + live preview layer on top
   const committedRef = useRef<HTMLCanvasElement>(null);
   const liveRef = useRef<HTMLCanvasElement>(null);
@@ -97,13 +104,7 @@ export default function DrawingCanvas() {
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
 
-  const opLog = useOperationLog({
-    userId: USER_ID,
-    // onCommit: (op) => ws.send(JSON.stringify(op)),       // ← wire to your WebSocket
-    // onUndo:   (id) => ws.send(JSON.stringify({ type: "undo", opId: id })),
-    // onRedo:   (op) => ws.send(JSON.stringify({ type: "redo", op })),
-  });
-
+  
   // ── Sync undo/redo button state ──────────────────────────────────────────────
   const syncUndoState = useCallback(() => {
     setCanUndo(opLog.canUndo());
@@ -117,6 +118,11 @@ export default function DrawingCanvas() {
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
   }, []);
+  
+  // ── Render canvas changes from other users  ──────────────────────────────────────────────
+  useEffect(() => {
+    replayToCommitted();
+  }, [opLog.version]); 
 
   // ── Replay full log onto committed canvas (called after undo/redo/remote op) ─
   const replayToCommitted = useCallback(() => {
@@ -132,7 +138,8 @@ export default function DrawingCanvas() {
       const op: StrokeOp = {
         type: "stroke",
         id: currentStrokeId.current,
-        userId: USER_ID,
+        userId: userId,
+        roomId: roomId,
         points: pts,
         color,
         size: brushSize,
@@ -163,7 +170,8 @@ export default function DrawingCanvas() {
         const op: Operation = {
           type: "fill",
           id: uid(),
-          userId: USER_ID,
+          userId: userId,
+          roomId: roomId,
           x: Math.round(pos.x),
           y: Math.round(pos.y),
           color,
@@ -205,7 +213,8 @@ export default function DrawingCanvas() {
       renderLiveStroke(liveCtx, {
         type: "stroke",
         id: currentStrokeId.current,
-        userId: USER_ID,
+        userId: userId,
+        roomId: roomId,
         points: smoothPoints.current,
         color,
         size: brushSize,
@@ -267,7 +276,7 @@ export default function DrawingCanvas() {
   // ── Clear ────────────────────────────────────────────────────────────────────
 
   const handleClear = useCallback(() => {
-    const op: Operation = { type: "clear", id: uid(), userId: USER_ID };
+    const op: Operation = { type: "clear", id: uid(), userId: userId, roomId : roomId};
     opLog.commit(op);
     const ctx = committedRef.current?.getContext("2d");
     if (ctx) {
@@ -404,7 +413,7 @@ export default function DrawingCanvas() {
       {/* ── Canvas stack ── */}
       <div style={{ ...s.canvasWrap, cursor }}>
         {/* Committed layer */}
-        <canvas
+        <canvas 
           ref={committedRef}
           width={CANVAS_WIDTH}
           height={CANVAS_HEIGHT}
