@@ -3,9 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Canvas from "../components/Canvas";
 import { useOperationLog } from "../components/Useoperationlog"
 import type { Operation } from "../components/Useoperationlog";
-
-// import fabric from "fabric";
-// import { socket } from "../networking/socket";
+import "../LobbyPage.css";
 
 export default function LobbyPage() {
   const socketRef = useRef<WebSocket | null>(null);
@@ -53,12 +51,10 @@ export default function LobbyPage() {
   return (
     <div>
       <button
-        onClick={() => {
-          socketRef.current?.close(); 
-          navigate("/");
-        }}
+        className="lobby-back-btn"
+        onClick={() => { socketRef.current?.close(); navigate("/"); }}
       >
-        ⬅ Return to Lobby List
+        ⬅ back to lobbies
       </button>
 
       <Canvas userId={userId} roomId={roomId} opLog={opLog}/>

@@ -462,6 +462,9 @@ const s: Record<string, React.CSSProperties> = {
     gap: 10,
     fontFamily: "sans-serif",
     userSelect: "none",
+    paddingTop: "4.5rem",    
+    paddingLeft: "1rem",   
+    paddingRight: "1rem",
   },
   toolbar: {
     display: "flex",
