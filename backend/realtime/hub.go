@@ -2,6 +2,8 @@ package realtime
 
 import (
 	"log"
+    "encoding/json"
+    "net/http"
 )
 
 type Hub struct {
@@ -56,4 +58,16 @@ func (h *Hub) Run() {
             }
         }
     }
+}
+
+func (h *Hub) RoomCountsHandler(w http.ResponseWriter, r *http.Request) {
+    w.Header().Set("Content-Type", "application/json")
+    w.Header().Set("Access-Control-Allow-Origin", "*") 
+
+    counts := map[string]int{}
+    for id, room := range h.Rooms {
+        counts[id] = len(room.Clients)
+    }
+
+    json.NewEncoder(w).Encode(counts)
 }

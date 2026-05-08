@@ -41,7 +41,7 @@ html {
   font-size: 3.2rem;
   font-weight: 800;
   letter-spacing: -1px;
-  background: linear-gradient(135deg, #ffd700, #ffb347 0%, #ff6b9d 50%100%);
+  background: linear-gradient(135deg, #ffd700 0%, #ffb347 20%, #ff6b9d 85%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -50,7 +50,7 @@ html {
  
 .home-logo__sub {
   font-size: 1rem;
-  color: #ff8ef7;
+  color: #ff8ec7;
   font-weight: 600;
   margin-top: 0.3rem;
   animation: floatBob 3.5s ease-in-out infinite 0.5s;
@@ -60,7 +60,7 @@ html {
   background: rgba(255, 255, 255, 0.72);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
-  border: 1.5px solid rgba(255, 200, 240, 0.6);
+  border: 8px solid rgba(255, 200, 222, 0.6);
   border-radius: 28px;
   padding: 2rem 2.2rem;
   width: 100%;
@@ -90,7 +90,7 @@ html {
   width: 100%;
   padding: 0.85rem 1.2rem;
   background: rgba(255, 245, 255, 0.75);
-  border: 1.5px solid rgba(220, 160, 230, 0.4);
+  border: 1.5px solid rgba(230, 160, 220, 0.4);
   border-radius: 18px;
   cursor: pointer;
   font-family: 'Nunito', sans-serif;
@@ -123,17 +123,17 @@ html {
 .home-list__name {
   font-size: 1rem;
   font-weight: 700;
-  color: #7c4f8a;
+  color: #b46ba1;
 }
 
 .home-list__pill {
   font-size: 0.72rem;
   font-weight: 700;
   background: rgba(240, 200, 255, 0.55);
-  color: #a855c7;
+  color: #c287b3;
   border-radius: 50px;
   padding: 0.2rem 0.65rem;
-  margin-top: 2px;
+  margin-top: 5px;
   display: inline-block;
 }
 

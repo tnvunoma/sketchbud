@@ -1,11 +1,11 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import "../HomePage.css";
 
 
 // ── Petal cursor effect ──────────────────────────────────────────────────────
 const PETAL_EMOJIS = ["🌸", "🌺", "🌼", "✿", "❀", "🌷"];
-const LOBBY_EMOJIS = ["🌙", "🌺", "☁️", "🌸", "✨", "🍄"];
+const LOBBY_EMOJIS = ["🌼", "🌺", "🪻",];
  
 interface Petal {
   x: number; y: number;
@@ -99,13 +99,25 @@ export default function HomePage() {
   const petalCanvasRef = useRef<HTMLCanvasElement>(null);
   usePetalCursor(petalCanvasRef);
 
+  const [counts, setCounts] = useState<Record<string, number>>({});
+  useEffect(() => {
+    const fetchCounts = () =>
+      fetch("http://localhost:8080/rooms")
+        .then(r => r.json())
+        .then(setCounts);
+
+    fetchCounts();
+    const interval = setInterval(fetchCounts, 1000); 
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <>
       <div className="home-content">
         <div className="home-logo">
-              <div className="home-logo__icon">🎨</div>
+              <div className="home-logo__icon">🎨🖌️</div>
               <div className="home-logo__text">sketchbud</div>
-              <div className="home-logo__sub">draw together 🌸</div>
+              <div className="home-logo__sub">🌸 a website where you can draw together 🌸</div>
         </div>
 
         <div className="home-card">
@@ -124,6 +136,9 @@ export default function HomePage() {
                   <div>
                     <div className="home-list__name">{lobby.name}</div>
                     {/* <span className="home-list__pill">{lobby.id}</span> */}
+                    <span className="home-list__pill">
+                      {counts[lobby.id] ?? 0} online
+                    </span>
                   </div>
                 </div>
                 <span className="home-list__arrow">→</span>

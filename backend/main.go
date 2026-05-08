@@ -73,7 +73,7 @@ func main() {
 	go hub.Run()
 
 	http.HandleFunc("/ws", handleWS)
-
 	log.Println("Server running on :8080")
+	http.HandleFunc("/rooms", hub.RoomCountsHandler)
 	http.ListenAndServe(":8080", nil)
 }
