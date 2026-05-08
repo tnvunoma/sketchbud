@@ -8,18 +8,18 @@ type Hub struct {
     Rooms map[string]*Room
     Register chan *Client
     Unregister chan *Client
-    Broadcast chan Message
-}
-
-type Message struct {
-    Msg []byte
-    Room string
+    Broadcast chan OperationPacket
 }
 
 type Room struct {
     Name string
     Clients map[*Client]struct{}
     OpLog [][]byte
+}
+
+type OperationPacket struct {
+    Msg []byte
+    Room string
 }
 
 func (h *Hub) Run() {

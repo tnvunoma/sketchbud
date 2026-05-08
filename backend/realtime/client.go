@@ -3,7 +3,6 @@ package realtime
 import (
 	"log"
 	"github.com/gorilla/websocket"
-	"sketchbud-backend/packetlib"
 	"encoding/json"
 )
 
@@ -15,6 +14,10 @@ type Client struct {
 	Hub      *Hub
 }
 
+type OperationType struct {
+  Type    string `json:"type"`
+}
+
 func (c *Client) ReadPump() {
     for {
 		_, msg, err := c.Conn.ReadMessage()
@@ -24,7 +27,8 @@ func (c *Client) ReadPump() {
 			break
 		}
 
-		var base packetlib.OperationPacket
+		var base OperationType
+		
 
 		if err := json.Unmarshal(msg, &base); err != nil {
 			log.Println("Bad message:", err)
@@ -34,8 +38,8 @@ func (c *Client) ReadPump() {
 		log.Println("Received type:", base.Type)
 
 		switch base.Type {
-			case "stroke", "fill", "clear":  //only checking type, perhaps should also check message format
-				c.Hub.Broadcast <- Message{
+			case "stroke", "fill", "clear":  
+				c.Hub.Broadcast <- OperationPacket{
 					Msg: msg,
 					Room: c.RoomName,
 				}

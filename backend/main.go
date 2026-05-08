@@ -67,7 +67,7 @@ func main() {
 		Rooms: rooms,  
 		Register: make(chan *realtime.Client),
 		Unregister: make(chan *realtime.Client),
-		Broadcast: make(chan realtime.Message),
+		Broadcast: make(chan realtime.OperationPacket),
 	}
 
 	go hub.Run()
