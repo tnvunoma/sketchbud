@@ -7,6 +7,7 @@ import "../LobbyPage.css";
 
 export default function LobbyPage() {
   const socketRef = useRef<WebSocket | null>(null);
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || "ws://localhost:8080";
   const navigate = useNavigate();
   const { roomId } = useParams();
 
@@ -25,7 +26,7 @@ export default function LobbyPage() {
   useEffect(() => {
     console.log("ROOM ID:", roomId);
     const socket = new WebSocket(
-      `ws://localhost:8080/ws?room=${roomId}&user=${userId}`,
+      `${backendUrl}/ws?room=${roomId}&user=${userId}`
     );
     socketRef.current = socket;
 

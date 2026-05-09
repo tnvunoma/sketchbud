@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import "../HomePage.css";
 
+const backendUrl = import.meta.env.VITE_BACKEND_URL?.replace("wss://", "https://").replace("ws://", "http://") || "http://localhost:8080";
 
 // ── Petal cursor effect ──────────────────────────────────────────────────────
 const PETAL_EMOJIS = ["🌸", "🌺", "🌼", "✿", "❀", "🌷"];
@@ -102,7 +103,7 @@ export default function HomePage() {
   const [counts, setCounts] = useState<Record<string, number>>({});
   useEffect(() => {
     const fetchCounts = () =>
-      fetch("http://localhost:8080/rooms")
+      fetch(`${backendUrl}/rooms`)
         .then(r => r.json())
         .then(setCounts);
 

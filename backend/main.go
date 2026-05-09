@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"github.com/gorilla/websocket"
 	"sketchbud-backend/realtime"
+	"os"
 )
 
 var hub *realtime.Hub
@@ -12,7 +13,7 @@ var hub *realtime.Hub
 //used to upgrade HTTP connections to WebSocket connections
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
-		return true // allow all connections
+		return origin == "https://sketchbud.vercel.app/" // your actual Vercel URL
 	},
 }
 
@@ -73,7 +74,11 @@ func main() {
 	go hub.Run()
 
 	http.HandleFunc("/ws", handleWS)
-	log.Println("Server running on :8080")
 	http.HandleFunc("/rooms", hub.RoomCountsHandler)
-	http.ListenAndServe(":8080", nil)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	log.Println("Server running on :" + port)
+	http.ListenAndServe(":"+port, nil)
 }
