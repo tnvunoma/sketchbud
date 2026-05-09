@@ -53,7 +53,7 @@ export function useOperationLog(options: {
   onUndo?: (opId: string) => void;
   onRedo?: (op: Operation) => void;
 }) {
-  const { userId, onCommit, onUndo, onRedo } = options;
+  const { onCommit, onUndo, onRedo } = options;
 
   // Canonical log — ordered list of all committed ops across all users
   const log = useRef<Operation[]>([]);

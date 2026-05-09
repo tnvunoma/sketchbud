@@ -16,7 +16,7 @@ interface Petal {
   emoji: string;
 }
 
-function usePetalCursor(canvasRef: React.RefObject<HTMLCanvasElement>) {
+function usePetalCursor(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;

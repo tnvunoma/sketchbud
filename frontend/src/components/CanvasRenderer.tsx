@@ -1,4 +1,4 @@
-import type { Operation, Point, StrokeOp, FillOp } from "./Useoperationlog";
+import type { Operation, Point, StrokeOp } from "./Useoperationlog";
 
 export const CANVAS_WIDTH = 900;
 export const CANVAS_HEIGHT = 520;

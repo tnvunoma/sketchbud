@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Canvas from "../components/Canvas";
-import { useOperationLog } from "../components/Useoperationlog"
+import { useOperationLog } from "../components/Useoperationlog";
 import type { Operation } from "../components/Useoperationlog";
 import "../LobbyPage.css";
 
@@ -16,16 +16,20 @@ export default function LobbyPage() {
   const opLog = useOperationLog({
     userId,
     onCommit: (op) => socketRef.current?.send(JSON.stringify(op)),
-    onUndo:   (id) => socketRef.current?.send(JSON.stringify({ type: "undo", opId: id })),
-    onRedo:   (op) => socketRef.current?.send(JSON.stringify({ type: "redo", op })),
+    onUndo: (id) =>
+      socketRef.current?.send(JSON.stringify({ type: "undo", opId: id })),
+    onRedo: (op) =>
+      socketRef.current?.send(JSON.stringify({ type: "redo", op })),
   });
-  
+
   useEffect(() => {
     console.log("ROOM ID:", roomId);
-    const socket = new WebSocket(`ws://localhost:8080/ws?room=${roomId}&user=${userId}`);
+    const socket = new WebSocket(
+      `ws://localhost:8080/ws?room=${roomId}&user=${userId}`,
+    );
     socketRef.current = socket;
 
-    socket.onopen = (event) => {
+    socket.onopen = () => {
       console.log("CONNECTED");
     };
 
@@ -40,7 +44,7 @@ export default function LobbyPage() {
     socket.onmessage = (event) => {
       console.log("Received:", event.data);
       const op: Operation = JSON.parse(event.data);
-      opLog.addOperation(op)
+      opLog.addOperation(op);
     };
 
     return () => {
@@ -52,12 +56,15 @@ export default function LobbyPage() {
     <div>
       <button
         className="lobby-back-btn"
-        onClick={() => { socketRef.current?.close(); navigate("/"); }}
+        onClick={() => {
+          socketRef.current?.close();
+          navigate("/");
+        }}
       >
         ⬅ back to lobbies
       </button>
 
-      <Canvas userId={userId} roomId={roomId} opLog={opLog}/>
+      <Canvas userId={userId} roomId={roomId} opLog={opLog} />
     </div>
   );
 }
