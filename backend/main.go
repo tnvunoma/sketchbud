@@ -12,9 +12,11 @@ var hub *realtime.Hub
 
 //used to upgrade HTTP connections to WebSocket connections
 var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool {
-		return origin == "https://sketchbud.vercel.app/" // your actual Vercel URL
-	},
+  CheckOrigin: func(r *http.Request) bool {
+    origin := r.Header.Get("Origin")
+    return origin == "https://sketchbud.vercel.app" ||
+           origin == "http://localhost:5173" 
+  },
 }
 
 func handleWS(w http.ResponseWriter, r *http.Request) {

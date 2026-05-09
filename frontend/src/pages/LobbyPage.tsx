@@ -43,10 +43,28 @@ export default function LobbyPage() {
     };
 
     socket.onmessage = (event) => {
-      console.log("Received:", event.data);
-      const op: Operation = JSON.parse(event.data);
-      opLog.addOperation(op);
-    };
+    const data = JSON.parse(event.data);
+    console.log("received:", data); // ← what is actually coming in?
+
+    if (Array.isArray(data)) {
+      data.forEach((op: Operation) => opLog.addOperation(op));
+      return;
+    }
+
+    if (data.type === "undo") {
+      console.log("handling undo for:", data.opId);
+      opLog.removeOperation(data.opId);
+      return;
+    }
+
+    if (data.type === "redo") {
+      console.log("handling redo for:", data.op);
+      opLog.addOperation(data.op);
+      return;
+    }
+
+    opLog.addOperation(data as Operation);
+  };
 
     return () => {
       socket.close();

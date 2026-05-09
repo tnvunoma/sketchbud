@@ -37,14 +37,9 @@ func (c *Client) ReadPump() {
 
 		log.Println("Received type:", base.Type)
 
-		switch base.Type {
-			case "stroke", "fill", "clear":  
-				c.Hub.Broadcast <- OperationPacket{
-					Msg: msg,
-					Room: c.RoomName,
-				}
-			default:
-				log.Println("Unknown type:", base.Type)
+		c.Hub.Broadcast <- OperationPacket{
+			Msg: msg,
+			Room: c.RoomName,
 		}
 	}
 }
