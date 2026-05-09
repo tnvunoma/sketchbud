@@ -1,3 +1,5 @@
+Apologies that our final submission is late. It took longer than we expected to export our video. Our first submission to gradescope has everything but the video... :( 
+
 # Introduction 
 For our final project, we set out to create a real-time, multi-user online drawing website, where users can draw on shared canvases with other users. Our drawing application supports 3 lobbies, each capable of supporting multiple users. 
 
@@ -71,6 +73,7 @@ When one user makes a change to the canvas, all users who are on the same canvas
 
 ## Discussions/Results
 A full walk through of our application can be viewed in our video: 
+https://drive.google.com/file/d/11aLBNkW3xAyF__GNDm0extmZRG3HO2BZ/view?usp=drive_link
 
 Through this project, we learned about websockets and how messages are passed using websockets. We also learned about how to design an application that involves shared state management between users. 
  
