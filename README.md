@@ -1,5 +1,3 @@
-Apologies that our final submission is late. It took longer than we expected to export our video. Our first submission to gradescope has everything but the video... :( 
-
 # Introduction 
 For our final project, we set out to create a real-time, multi-user online drawing website, where users can draw on shared canvases with other users. Our drawing application supports 3 lobbies, each capable of supporting multiple users. 
 
